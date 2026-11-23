@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore PCA versus nine original encoded features, model rankings, subgroup errors, paired bootstrap intervals, and four regression models on Abalone.">
+  <title>Abalone / PCA Experiment Lab — ECS 171</title>
+  <style>
+    :root {--ink:#102d36;--muted:#657781;--line:#dce6e8;--paper:#fff;--canvas:#f5f7f6;--teal:#147b75;--dark:#102a32;--cream:#e8f5f1;--warning:#9e5a20;--shadow:0 15px 45px rgba(24,57,62,.045)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+    button,select,input{font:inherit}
+    button,select{cursor:pointer}
+    button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #5eafaa;outline-offset:2px}
+    .page{max-width:1248px;margin:0 auto;padding:22px 27px 70px}
+    .topbar{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+    .logo{width:37px;height:37px;display:grid;place-items:center;background:var(--ink);color:white;border-radius:11px;font-size:23px;font-weight:700}
+    .brand{font-size:.83rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+    .navnote{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.83rem;font-weight:600}
+    .dot-live{display:inline-block;width:7px;height:7px;background:#40bba0;border-radius:50%}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(111deg,#0f2c35 0%,#174751 68%,#20635f 100%);border-radius:22px;color:white;padding:34px 37px;display:grid;grid-template-columns:minmax(0,1fr);gap:0;box-shadow:0 17px 46px rgba(16,45,54,.12)}
+    .hero:before{content:"";position:absolute;right:-65px;top:-150px;width:460px;height:460px;border:1px solid #ffffff25;border-radius:50%;box-shadow:0 0 0 65px #ffffff08,0 0 0 130px #ffffff05;pointer-events:none}
+    .hero-copy{position:relative;z-index:1}
+    .eyebrow{color:#9fe2d0;letter-spacing:.18em;font-size:.72rem;font-weight:850;text-transform:uppercase}
+    h1{font-size:clamp(2rem,4.3vw,3.4rem);letter-spacing:-.055em;line-height:1.09;margin:12px 0 16px;max-width:100%;font-weight:790}
+    .hero-copy p{color:#bcd0d2;max-width:770px;font-size:.96rem;margin:0}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
+    .hero-tag{border:1px solid #ffffff31;background:#ffffff0b;padding:6px 10px;border-radius:20px;font-size:.76rem;font-weight:650;color:#d7e8e9}
+    .section-intro{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin:32px 0 14px}
+    .section-intro h2{font-size:1.12rem;letter-spacing:-.025em;margin:0}
+    .section-intro p{margin:0;color:var(--muted);font-size:.83rem}
+    .scenario-rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+    .scenario{min-height:112px;text-align:left;padding:13px 12px;background:var(--paper);border:1px solid var(--line);border-radius:13px;color:var(--ink);transition:border .16s,transform .16s,box-shadow .16s}
+    .scenario:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#b4cdca}
+    .scenario.active{border:2px solid #147b75;padding:12px 11px;background:#eff9f6;box-shadow:0 5px 18px #147b7514}
+    .scenario-title{font-size:.82rem;font-weight:800;white-space:nowrap}
+    .scenario-winner{font-size:.88rem;margin:12px 0 3px;font-weight:750;line-height:1.18;overflow-wrap:anywhere}
+    .scenario-count{font-size:.73rem;color:var(--muted)}
+    .workspace{display:grid;grid-template-columns:276px minmax(0,1fr);gap:18px;margin-top:20px;align-items:start}
+    .panel{background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:23px;box-shadow:var(--shadow);min-width:0}
+    .control-panel{position:sticky;top:20px}
+    .kicker{font-size:.69rem;font-weight:820;letter-spacing:.13em;color:#557a7c;text-transform:uppercase}
+    .panel h2{margin:4px 0 6px;font-size:1.19rem;letter-spacing:-.035em}
+    .hint{font-size:.81rem;color:var(--muted);margin:4px 0 0}
+    .field{margin-top:20px}
+    .field-title{font-size:.81rem;font-weight:780;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+    .field-sub{color:var(--muted);font-size:.73rem;font-weight:550}
+    .ranges{display:grid;gap:9px;margin-top:11px}
+    .range-row{display:grid;grid-template-columns:30px 1fr 29px;align-items:center;gap:5px;color:var(--muted);font-size:.74rem}
+    input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer}
+    .input-shell{width:100%;background:#fbfcfc;border:1px solid #cad7da;border-radius:9px;padding:9px 10px;color:var(--ink);min-width:0}
+    .buttons{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+    .btn{border:1px solid #ccd9da;border-radius:10px;padding:9px 12px;background:white;color:var(--ink);font-size:.82rem;font-weight:760}
+    .btn.primary{background:var(--ink);border-color:var(--ink);color:white}
+    .btn:hover{filter:brightness(.96)}
+    .main-column{display:grid;gap:18px}
+    .section-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:11px;margin-bottom:12px}
+    .section-head h2{margin:0}
+    .compact-select{border:1px solid #ccd9da;background:#fff;border-radius:9px;padding:7px 9px;font-size:.8rem;font-weight:700;color:var(--ink);max-width:210px}
+    .metric-note{font-size:.8rem;color:var(--muted);margin:0 0 14px}
+    .badge-sample{padding:6px 10px;border-radius:15px;background:#edf7f4;color:#156c63;font-size:.79rem;font-weight:800}
+    .rank-list{display:grid;gap:9px}
+    .rank-row{width:100%;display:grid;grid-template-columns:30px minmax(0,1fr) 110px;align-items:center;gap:11px;text-align:left;border:1px solid #e3ecee;border-radius:11px;padding:13px 13px;background:#fbfdfd;color:var(--ink)}
+    .rank-row:hover{background:#f3f9f7}
+    .rank-row.winner{border-color:#8bc9ba;background:#f0faf5}
+    .rank-index{font-size:.77rem;color:#698188;font-weight:800}
+    .rank-name{font-size:.93rem;font-weight:770;display:flex;align-items:center;gap:8px;line-height:1.2}
+    .model-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+    .rank-extra{font-size:.75rem;color:var(--muted);margin:5px 0 0 17px}
+    .rank-value{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;letter-spacing:-.02em;font-size:1.09rem}
+    .rank-value small{font-size:.69rem;color:var(--muted);display:block;font-weight:550;letter-spacing:0}
+    .insight{display:flex;align-items:flex-start;gap:10px;background:#f2f7f6;border-radius:10px;padding:13px 14px;margin-top:14px;font-size:.82rem;color:#425f65;line-height:1.55}
+    .insight-mark{background:#d6eee6;color:#127369;width:22px;height:22px;display:grid;place-items:center;border-radius:7px;flex-shrink:0;font-weight:900}
+    .alert{margin-top:11px;color:#875326;background:#fff6e9;padding:11px 13px;border-radius:9px;font-size:.8rem}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .small-caps{color:#648084;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800}
+    .duel-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+    .duel-controls select{flex:1 1 138px;min-width:0;max-width:none}
+    .versus{color:#799092;font-size:.73rem;font-weight:850}
+    .duel-track{display:flex;overflow:hidden;height:14px;background:#edf2f3;border-radius:10px;margin:15px 0 9px}
+    .duel-track>div{transition:width .2s ease}
+    .duel-key{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:.77rem;color:var(--muted)}
+    .duel-results{font-size:.86rem;color:#2a4a52;margin:13px 0 3px;font-weight:650}
+    .split-head{display:flex;gap:11px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:9px}
+    .split-head h2{margin:0}
+    .inspector-info{font-size:.78rem;color:var(--muted);margin-top:6px}
+    .scatter{width:100%;height:auto;display:block;min-height:255px}
+    .plot-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.73rem;color:var(--muted);margin-top:5px}
+    .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+    .axis-label{font-size:12px;fill:#647982}
+    .gridline{stroke:#e7eeee;stroke-width:1}
+    .axis-line{stroke:#9eb1b6;stroke-width:1}
+    .perfect{stroke:#adbbc0;stroke-width:2;stroke-dasharray:6 5}
+    .heatmap{width:100%;border-collapse:separate;border-spacing:0 5px;table-layout:fixed;font-size:.81rem}
+    .heatmap th{color:var(--muted);font-size:.75rem;text-align:right;font-weight:760;padding:7px 8px;white-space:normal;line-height:1.2}
+    .heatmap th:first-child{text-align:left;width:100px}
+    .heatmap td{border-top:1px solid #eef1f2;border-bottom:1px solid #eef1f2;background:#f8fafb;text-align:right;padding:10px 8px;font-variant-numeric:tabular-nums}
+    .heatmap td:first-child{text-align:left;font-weight:750;border-left:1px solid #eef1f2;border-radius:8px 0 0 8px;cursor:pointer}
+    .heatmap td:last-child{border-right:1px solid #eef1f2;border-radius:0 8px 8px 0}
+    .heatmap td.best{background:#e5f5ed;color:#126a54;font-weight:850}
+    .heatmap tr.current td{border-top-color:#1f9282;border-bottom-color:#1f9282}
+    .heatmap tr.current td:first-child{border-left-color:#1f9282}
+    .heatmap tr.current td:last-child{border-right-color:#1f9282}
+    .heatmap button{background:none;border:0;color:inherit;font-size:inherit;font-weight:800;padding:0;text-align:left}
+    .table-scroll{overflow:auto}
+    .samples{width:100%;border-collapse:collapse;text-align:left;min-width:580px;font-size:.8rem}
+    .samples th{color:var(--muted);font-weight:780;font-size:.73rem;white-space:nowrap;padding:12px 9px;border-bottom:1px solid var(--line)}
+    .samples td{padding:12px 9px;border-bottom:1px solid #eaf0f1;font-variant-numeric:tabular-nums}
+    .samples tr:last-child td{border-bottom:0}
+    .samples tr:hover td{background:#f5faf8}
+    .samples .highlighted td{background:#eff8f4}
+    .samples td:first-child{font-weight:780}
+    .sample-input{border:1px solid #ccd9da;border-radius:9px;padding:8px 9px;max-width:150px;width:100%;font-size:.8rem}
+    .sample-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .error{border:1px solid #e2afa1;background:#fff4ef;color:#8b321f;border-radius:10px;padding:18px;margin:20px 0}
+    [hidden]{display:none!important}
+    @media(max-width:1090px){.scenario-rail{grid-template-columns:repeat(3,minmax(0,1fr))}.detail-grid{grid-template-columns:1fr}}
+    @media(max-width:850px){.workspace{grid-template-columns:1fr}.control-panel{position:static}.hero{grid-template-columns:1fr}.page{padding:15px 16px 50px}}
+    @media(max-width:620px){.hero{padding:25px 22px;gap:20px}.scenario-rail{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:17px}.rank-row{grid-template-columns:26px minmax(0,1fr) 84px;padding:12px 10px}.rank-value{font-size:.95rem}.heatmap{font-size:.72rem}.heatmap th,.heatmap td{padding:8px 4px}.heatmap th:first-child{width:70px}.navnote{font-size:.68rem}.logo{flex-shrink:0}}
+
+    /* V3: controlled PCA experiment + uncertainty */
+    .feature-lab{margin:23px 0 0;border-color:#bedbd4;box-shadow:0 14px 36px rgba(18,80,72,.07)}
+    .lab-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .lab-heading>div:first-child{max-width:570px}
+    .lab-heading h2{font-size:1.46rem;margin:3px 0 3px}
+    .feature-toggle{display:flex;gap:5px;background:#eaf0ef;border:1px solid #d5e5e1;border-radius:14px;padding:5px;max-width:420px}
+    .feature-choice{min-width:133px;border:1px solid transparent;border-radius:10px;background:transparent;padding:10px 13px;color:#557174;font-weight:780;text-align:left;display:flex;flex-direction:column;line-height:1.4}
+    .feature-choice small{font-size:.69rem;font-weight:580;color:#738a8c}
+    .feature-choice.active{background:#fff;border-color:#b3d0ca;color:#0e6660;box-shadow:0 3px 13px #21544b14}
+    .feature-choice.active small{color:#648481}
+    .lab-context{font-size:.79rem;color:#28776b;font-weight:750;margin:14px 0 8px}
+    .impact-grid{display:block;margin-top:8px}
+    .compact-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;color:#223e45;font-size:.84rem;margin-bottom:11px;flex-wrap:wrap}
+    .compact-heading span{font-size:.72rem;font-weight:650;color:var(--muted)}
+    .impact-list{display:grid;gap:10px}
+    .impact-row{display:grid;grid-template-columns:minmax(125px,170px) minmax(0,1fr) 72px;gap:12px;align-items:center;padding:9px 11px;border-radius:10px;background:#f8faf9;border:1px solid #e7eeed}
+    .impact-row .model-name{font-size:.8rem;font-weight:820}
+    .mini-bar-track{height:10px;min-width:0;border-radius:5px;background:#e5eeed;overflow:hidden}
+    .mini-bar-fill{display:block;height:100%;border-radius:5px}
+    .mini-bar-value{min-width:60px;text-align:right;font-size:.73rem;font-variant-numeric:tabular-nums;color:#3d6165}
+    .filter-setting{margin-top:13px;background:#eef8f4;border:1px solid #dcefe8;border-radius:9px;padding:10px 12px;font-size:.76rem;color:#536f73}
+    .filter-setting strong{display:block;color:#146f64;font-size:.84rem}
+    .confidence-panel{margin-top:20px}
+    .uncertainty-grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.93fr);gap:22px;margin-top:17px}
+    .ci-panel{min-width:0;border:1px solid #e2eded;border-radius:13px;padding:17px;background:#fdfefe}
+    .ci-list{display:grid;gap:13px}
+    .ci-row{display:grid;grid-template-columns:125px minmax(0,1fr) 76px;align-items:center;gap:12px}
+    .ci-name{font-size:.78rem;font-weight:760}
+    .ci-track{height:24px;position:relative;background:linear-gradient(90deg,transparent 0%,#f0f4f3 50%,transparent 100%);border-bottom:1px solid #dbe7e7}
+    .ci-whisker{height:4px;position:absolute;top:11px;border-radius:4px;opacity:.76}
+    .ci-point{height:13px;width:5px;position:absolute;top:6px;border-radius:2px;transform:translateX(-50%);background:var(--ink);border:1px solid white}
+    .ci-number{text-align:right;color:#254b52;font-size:.79rem;font-weight:790;font-variant-numeric:tabular-nums}
+    .ci-range-label{grid-column:2/-1;font-size:.71rem;color:var(--muted);margin-top:-12px}
+    .pair-value{font-weight:850;font-size:1.55rem;letter-spacing:-.045em;margin:18px 0 2px}
+    .pair-interval{color:#4b6870;font-weight:680;font-size:.91rem}
+    .pair-judgment{padding:10px 12px;border-radius:8px;background:#edf4f2;color:#345e60;font-size:.83rem;margin:12px 0}
+    .pair-judgment.clear{background:#e5f7ed;color:#155c46}
+    .pair-judgment.uncertain{background:#fff7e8;color:#8a6136}
+    .impact-confidence{margin-top:24px;border-top:1px solid var(--line);padding-top:19px}
+    .impact-confidence .samples{min-width:600px}
+    @media(max-width:940px){.uncertainty-grid{grid-template-columns:1fr}}
+    @media(max-width:620px){.impact-row{grid-template-columns:92px minmax(0,1fr) 56px;gap:8px}.feature-toggle{width:100%}.feature-choice{min-width:0;flex:1}.ci-row{grid-template-columns:90px minmax(0,1fr) 52px;gap:7px}.ci-panel{padding:12px}.ci-name{font-size:.72rem}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">≈</div><div class="brand">ECS 171 <span style="color:#84969c">/</span> GROUP 18</div>
+    <div class="navnote"><span class="dot-live"></span> INTERACTIVE RESULTS · NO SERVER</div>
+  </header>
+
+  <section class="hero" aria-label="Overview">
+    <div class="hero-copy">
+      <div class="eyebrow">Abalone regression / scenario explorer</div>
+      <h1>Regression vs. Tree-based Models</h1>
+      <p>Switch between PCA and the original encoded features. Explore how four models trade places across test subsets, then inspect uncertainty with paired bootstrap intervals.</p>
+      <div class="hero-tags"><span class="hero-tag">4 models · 2 feature settings</span><span class="hero-tag">Same 805 held-out rows</span><span class="hero-tag">5-fold CV</span><span class="hero-tag">3,000 paired bootstrap resamples</span></div>
+    </div>
+  </section>
+
+  <div id="error" class="error" hidden role="alert"></div>
+
+  <section class="panel feature-lab" aria-labelledby="feature-lab-title">
+    <div class="lab-heading">
+      <div><div class="kicker">Experiment 01 / Feature representation</div><h2 id="feature-lab-title">Does PCA help?</h2><p class="hint">Both settings use the same cleaned data, split, four algorithms, and held-out observations. Change the setting to update every interactive chart below.</p></div>
+      <div class="feature-toggle" role="group" aria-label="Select feature representation">
+        <button type="button" id="setting-pca" class="feature-choice active" aria-pressed="true"><span>PCA ON</span><small>2 components</small></button>
+        <button type="button" id="setting-nopca" class="feature-choice" aria-pressed="false"><span>PCA OFF</span><small>9 encoded features</small></button>
+      </div>
+    </div>
+    <div id="current-setting-label" class="lab-context" aria-live="polite">Viewing PCA (2 PCs) on 805 test samples</div>
+    <div class="impact-grid">
+      <div class="impact-table-wrap">
+        <div class="compact-heading"><strong>Full-test MAE by feature setting</strong><span>Lower ↓</span></div>
+        <div id="impact-list" class="impact-list" aria-label="Full-test MAE for selected feature setting"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Example scenarios">
+    <div class="section-intro"><h2>Explore a scenario</h2></div>
+    <div id="scenario-rail" class="scenario-rail"></div>
+  </section>
+
+  <div class="workspace">
+    <aside class="panel control-panel" aria-label="Filters">
+      <div class="kicker">Control room</div><h2>Build your own test</h2><div class="filter-setting">Feature space: <strong id="filter-setting-name">PCA ON · 2 PCs</strong></div>
+      <div class="field"><label class="field-title" for="metric-select">Ranking metric</label>
+        <select id="metric-select" class="input-shell">
+          <option value="MAE">MAE · mean absolute error ↓</option>
+          <option value="RMSE">RMSE · penalize large errors ↓</option>
+          <option value="MedAE">Median absolute error ↓</option>
+          <option value="R2">R² · explained variation ↑</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-title">Actual Rings <span id="ring-description" class="field-sub">3 – 29</span></div>
+        <div class="ranges">
+          <label class="range-row" for="rings-min"><span>Min</span><input type="range" id="rings-min" min="3" max="29" value="3"><strong id="rings-min-value">3</strong></label>
+          <label class="range-row" for="rings-max"><span>Max</span><input type="range" id="rings-max" min="3" max="29" value="29"><strong id="rings-max-value">29</strong></label>
+        </div>
+      </div>
+      <div class="field"><label class="field-title" for="sex-select">Sex category</label>
+        <select id="sex-select" class="input-shell"><option value="all">All categories</option><option value="F">F · Female</option><option value="M">M · Male</option><option value="I">I · Infant</option></select>
+      </div>
+      <div class="field"><label class="field-title" for="length-select">Shell length</label>
+        <select id="length-select" class="input-shell"><option value="all">All lengths</option><option value="small">Small · bottom 25%</option><option value="mid">Medium · middle 50%</option><option value="large">Large · top 25%</option></select>
+        <p class="field-sub" id="length-caption" style="margin:7px 0 0">Based on cleaned-dataset length quartiles.</p>
+      </div>
+      <div class="buttons"><button type="button" id="reset-button" class="btn">Reset filters</button><button type="button" id="export-button" class="btn primary">↓ Export subset</button></div>
+    </aside>
+
+    <div class="main-column">
+      <section class="panel" aria-labelledby="leaderboard-title">
+        <div class="section-head"><div><div class="kicker">02 / Dynamic leaderboard</div><h2 id="leaderboard-title">Who's winning now?</h2></div><span id="sample-badge" class="badge-sample">— samples</span></div>
+        <p id="metric-note" class="metric-note">Ranked by lowest mean absolute error on the filtered test set.</p>
+        <div id="rank-list" class="rank-list" aria-live="polite"></div>
+        <div id="low-count-alert" class="alert" hidden></div>
+      </section>
+
+      <section class="panel" aria-labelledby="heatmap-title">
+        <div class="section-head"><div><div class="kicker">03 / Performance by Rings</div><h2 id="heatmap-title">Where does each model win?</h2></div></div>
+        <p class="metric-note">Each row is a different ring-count segment. Scores use the selected metric, while Sex and Length filters remain active. Click a row to explore that group.</p>
+        <div class="table-scroll"><table class="heatmap" aria-label="Model scores by ring-count segment"><thead id="heatmap-head"></thead><tbody id="heatmap-body"></tbody></table></div>
+      </section>
+
+      <div class="detail-grid">
+        <section class="panel" aria-labelledby="duel-title">
+          <div class="kicker">04 / Head-to-head</div><h2 id="duel-title">Who wins more samples?</h2>
+          <p class="hint">Compare absolute errors on the <em>same</em> observations.</p>
+          <div class="duel-controls"><select id="duel-a" class="compact-select" aria-label="First comparison model"></select><span class="versus">VS</span><select id="duel-b" class="compact-select" aria-label="Second comparison model"></select></div>
+          <div id="duel-result" class="duel-results">—</div>
+          <div class="duel-track" aria-label="Share of samples won"><div id="duel-a-bar"></div><div id="duel-tie-bar" style="background:#c6d1d4"></div><div id="duel-b-bar"></div></div>
+          <div class="duel-key"><span id="duel-a-label">—</span><span id="duel-b-label">—</span></div>
+          <p class="hint" style="margin-top:13px">Per-sample win rate is not the same as the lowest average MAE.</p>
+        </section>
+        <section class="panel" aria-labelledby="scatter-title">
+          <div class="split-head"><div><div class="kicker">05 / Prediction map</div><h2 id="scatter-title">Actual vs. predicted</h2></div><select id="plot-model" class="compact-select" aria-label="Model for scatter plot"></select></div>
+          <svg id="scatter-svg" class="scatter" viewBox="0 0 640 310" role="img" aria-label="Scatter plot showing test prediction errors"></svg>
+          <div class="plot-legend"><span><i class="legend-dot" style="background:#1c9186"></i> Error ≤ 2 rings</span><span><i class="legend-dot" style="background:#df9960"></i> Error > 2 rings</span></div>
+          <p id="plot-inspector" class="inspector-info">Hover over a point to inspect a sample; click it to find it below.</p>
+        </section>
+      </div>
+
+      <section class="panel" aria-labelledby="samples-title">
+        <div class="section-head"><div><div class="kicker">06 / Test-set explorer</div><h2 id="samples-title">Inspect individual predictions</h2></div>
+          <div class="sample-controls"><input type="search" id="row-search" class="sample-input" placeholder="Original row ID" aria-label="Search original row ID"><select id="sort-samples" class="compact-select" aria-label="Sort sample predictions"><option value="worst">Largest errors first</option><option value="best">Smallest errors first</option><option value="disagree">Most model disagreement</option><option value="index">Original row order</option></select></div>
+        </div>
+        <p class="metric-note">Shows actual rings, the selected scatter-plot model's prediction, and the best model for each example.</p>
+        <div class="table-scroll"><table class="samples"><thead><tr><th>Original row</th><th>Sex</th><th>Actual</th><th>Predicted</th><th>Abs. error</th><th>Row winner</th></tr></thead><tbody id="sample-body"></tbody></table></div>
+        <p class="hint" id="sample-status">Showing selected test samples.</p>
+      </section>
+    </div>
+  </div>
+  <section class="panel confidence-panel" id="confidence" aria-labelledby="confidence-title">
+    <div class="section-head"><div><div class="kicker">07 / Statistical uncertainty</div><h2 id="confidence-title">How confident is the winner?</h2></div><span class="badge-sample">Full test · MAE only</span></div>
+    <div class="uncertainty-grid">
+      <div class="ci-panel">
+        <div class="compact-heading"><strong>95% MAE intervals</strong><span id="ci-setting-caption">PCA ON</span></div>
+        <div id="ci-list" class="ci-list" aria-label="Bootstrap confidence intervals for model MAE"></div>
+      </div>
+      <div class="ci-panel paired-card">
+        <div class="compact-heading"><strong>Paired model comparison</strong><span>ΔMAE = A − B</span></div>
+        <div class="duel-controls"><select id="pair-a" class="compact-select" aria-label="First model for paired bootstrap"></select><span class="versus">VS</span><select id="pair-b" class="compact-select" aria-label="Second model for paired bootstrap"></select></div>
+        <div id="pair-number" class="pair-value" aria-live="polite">—</div>
+        <div id="pair-interval" class="pair-interval">95% CI: —</div>
+        <div id="pair-judgment" class="pair-judgment">Choose two models to compare.</div>
+      </div>
+    </div>
+    <div class="impact-confidence">
+      <div class="compact-heading"><strong>Does PCA help each model?</strong><span>Paired 95% CI for PCA MAE − No-PCA MAE</span></div>
+      <div class="table-scroll"><table class="samples" aria-label="Paired bootstrap comparison of PCA versus No PCA"><thead><tr><th>Model</th><th>Δ MAE</th><th>95% interval</th><th>Interpretation</th></tr></thead><tbody id="pca-paired-body"></tbody></table></div>
+    </div>
+  </section>
+
+  <details class="panel" style="margin-top:20px">
+    <summary style="cursor:pointer;font-weight:800;font-size:1rem">Full benchmark · All 8 experiments (4 models × PCA ON/OFF)</summary>
+    <div class="table-scroll"><table class="samples" aria-label="Whole-test benchmark metrics"><thead><tr><th>Feature setting</th><th>Model</th><th>CV MAE ↓</th><th>Test MAE ↓</th><th>Test RMSE ↓</th><th>Test R² ↑</th></tr></thead><tbody id="benchmark-body"></tbody></table></div>
+  </details>
+</div>
+<script defer src="./app.js"></script>
+</body>
+</html>

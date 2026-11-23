@@ -1,0 +1,9 @@
+Feature_Setting,Model,CV_MAE,Best_Parameters
+PCA (2 PCs),XGBoost,1.8012393474578858,"{'model__subsample': 1.0, 'model__n_estimators': 100, 'model__max_depth': 3, 'model__learning_rate': 0.03, 'model__colsample_bytree': 1.0}"
+PCA (2 PCs),Extra Trees,1.803670514110193,"{'model__n_estimators': 200, 'model__min_samples_leaf': 1, 'model__max_features': 0.7, 'model__max_depth': 10}"
+PCA (2 PCs),Random Forest,1.8410184767672402,"{'model__n_estimators': 100, 'model__min_samples_leaf': 4, 'model__max_features': 0.7, 'model__max_depth': 10}"
+PCA (2 PCs),Linear Regression,1.8707923338670795,N/A (no tuning)
+No PCA (9 encoded features),Random Forest,1.4917114900072184,"{'model__n_estimators': 100, 'model__min_samples_leaf': 4, 'model__max_features': 0.7, 'model__max_depth': 10}"
+No PCA (9 encoded features),Extra Trees,1.5055070836644944,"{'model__n_estimators': 200, 'model__min_samples_leaf': 4, 'model__max_features': 1.0, 'model__max_depth': 20}"
+No PCA (9 encoded features),XGBoost,1.5062084674835206,"{'model__subsample': 0.8, 'model__n_estimators': 100, 'model__max_depth': 3, 'model__learning_rate': 0.1, 'model__colsample_bytree': 1.0}"
+No PCA (9 encoded features),Linear Regression,1.5504050342382225,N/A (no tuning)
