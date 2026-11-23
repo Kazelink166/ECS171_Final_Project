@@ -2,3 +2,4 @@ Model,CV_MAE,Best_Parameters
 XGBoost,1.8012393474578858,"{'model__subsample': 1.0, 'model__n_estimators': 100, 'model__max_depth': 3, 'model__learning_rate': 0.03, 'model__colsample_bytree': 1.0}"
 Extra Trees,1.803670514110193,"{'model__n_estimators': 200, 'model__min_samples_leaf': 1, 'model__max_features': 0.7, 'model__max_depth': 10}"
 Random Forest,1.8410184767672402,"{'model__n_estimators': 100, 'model__min_samples_leaf': 4, 'model__max_features': 0.7, 'model__max_depth': 10}"
+Linear Regression,1.8707923338670795,N/A (no tuning)
