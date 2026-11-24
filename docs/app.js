@@ -370,7 +370,6 @@
         tr.append(td);
         tbody.append(tr);
       }
-      $('#sample-status').textContent = 'Showing ' + Math.min(shown.length, limit) + ' of ' + shown.length + ' matching samples. Row winner = smallest absolute error on that observation.';
     }
     /* V3 extra visualization functions injected below. */
     const metricsMap = Object.fromEntries((data.metrics || []).map(r => [r.Setting + '|' + r.Model, r]));

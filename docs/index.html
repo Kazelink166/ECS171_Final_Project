@@ -18,18 +18,15 @@
     .brand{font-size:.83rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
     .navnote{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.83rem;font-weight:600}
     .dot-live{display:inline-block;width:7px;height:7px;background:#40bba0;border-radius:50%}
-    .hero{position:relative;overflow:hidden;background:linear-gradient(111deg,#0f2c35 0%,#174751 68%,#20635f 100%);border-radius:22px;color:white;padding:34px 37px;display:grid;grid-template-columns:minmax(0,1fr);gap:0;box-shadow:0 17px 46px rgba(16,45,54,.12)}
-    .hero:before{content:"";position:absolute;right:-65px;top:-150px;width:460px;height:460px;border:1px solid #ffffff25;border-radius:50%;box-shadow:0 0 0 65px #ffffff08,0 0 0 130px #ffffff05;pointer-events:none}
+    .hero{position:relative;overflow:hidden;background:#fff;border-radius:0;color:var(--ink);padding:16px 0 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:0;box-shadow:none}
+    
     .hero-copy{position:relative;z-index:1}
-    .eyebrow{color:#9fe2d0;letter-spacing:.18em;font-size:.72rem;font-weight:850;text-transform:uppercase}
-    h1{font-size:clamp(2rem,4.3vw,3.4rem);letter-spacing:-.055em;line-height:1.09;margin:12px 0 16px;max-width:100%;font-weight:790}
-    .hero-copy p{color:#bcd0d2;max-width:770px;font-size:.96rem;margin:0}
-    .hero-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
-    .hero-tag{border:1px solid #ffffff31;background:#ffffff0b;padding:6px 10px;border-radius:20px;font-size:.76rem;font-weight:650;color:#d7e8e9}
+    .eyebrow{color:#3f7074;letter-spacing:.18em;font-size:.72rem;font-weight:850;text-transform:uppercase}
+    h1{font-family:inherit;font-size:clamp(1.5rem,3vw,2.3rem);letter-spacing:.18em;line-height:1.25;margin:11px 0 0;max-width:100%;font-weight:850;text-transform:uppercase;color:#244b51}
     .section-intro{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin:32px 0 14px}
     .section-intro h2{font-size:1.12rem;letter-spacing:-.025em;margin:0}
     .section-intro p{margin:0;color:var(--muted);font-size:.83rem}
-    .scenario-rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+    .scenario-rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:22px}
     .scenario{min-height:112px;text-align:left;padding:13px 12px;background:var(--paper);border:1px solid var(--line);border-radius:13px;color:var(--ink);transition:border .16s,transform .16s,box-shadow .16s}
     .scenario:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#b4cdca}
     .scenario.active{border:2px solid #147b75;padding:12px 11px;background:#eff9f6;box-shadow:0 5px 18px #147b7514}
@@ -136,7 +133,7 @@
     .mini-bar-track{height:10px;min-width:0;border-radius:5px;background:#e5eeed;overflow:hidden}
     .mini-bar-fill{display:block;height:100%;border-radius:5px}
     .mini-bar-value{min-width:60px;text-align:right;font-size:.73rem;font-variant-numeric:tabular-nums;color:#3d6165}
-    .filter-setting{margin-top:13px;background:#eef8f4;border:1px solid #dcefe8;border-radius:9px;padding:10px 12px;font-size:.76rem;color:#536f73}
+    .filter-setting{margin-top:0;background:#eef8f4;border:1px solid #dcefe8;border-radius:9px;padding:10px 12px;font-size:.76rem;color:#536f73}
     .filter-setting strong{display:block;color:#146f64;font-size:.84rem}
     .confidence-panel{margin-top:20px}
     .uncertainty-grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.93fr);gap:22px;margin-top:17px}
@@ -170,7 +167,6 @@
     <div class="hero-copy">
       <div class="eyebrow">Abalone regression / scenario explorer</div>
       <h1>Regression vs. Tree-based Models</h1>
-      <div class="hero-tags"><span class="hero-tag">4 models · 2 feature settings</span><span class="hero-tag">Same 805 held-out rows</span><span class="hero-tag">5-fold CV</span><span class="hero-tag">3,000 paired bootstrap resamples</span></div>
     </div>
   </section>
 
@@ -178,7 +174,7 @@
 
   <section class="panel feature-lab" aria-labelledby="feature-lab-title">
     <div class="lab-heading">
-      <div><div class="kicker">Experiment 01 / Feature representation</div><h2 id="feature-lab-title">Does PCA help?</h2></div>
+      <div><h2 id="feature-lab-title">Does PCA help?</h2><p class="hint">Both settings use the same cleaned and split data</p></div>
       <div class="feature-toggle" role="group" aria-label="Select feature representation">
         <button type="button" id="setting-pca" class="feature-choice active" aria-pressed="true"><span>PCA ON</span><small>2 components</small></button>
         <button type="button" id="setting-nopca" class="feature-choice" aria-pressed="false"><span>PCA OFF</span><small>9 encoded features</small></button>
@@ -194,13 +190,12 @@
   </section>
 
   <section aria-label="Example scenarios">
-    <div class="section-intro"><h2>Explore a scenario</h2></div>
     <div id="scenario-rail" class="scenario-rail"></div>
   </section>
 
   <div class="workspace">
     <aside class="panel control-panel" aria-label="Filters">
-      <div class="kicker">Control room</div><div class="filter-setting">Feature space: <strong id="filter-setting-name">PCA ON · 2 PCs</strong></div>
+      <div class="filter-setting">Feature space: <strong id="filter-setting-name">PCA ON · 2 PCs</strong></div>
       <div class="field"><label class="field-title" for="metric-select">Ranking metric</label>
         <select id="metric-select" class="input-shell">
           <option value="MAE">MAE · mean absolute error ↓</option>
@@ -228,20 +223,20 @@
 
     <div class="main-column">
       <section class="panel" aria-labelledby="leaderboard-title">
-        <div class="section-head"><div><div class="kicker">02 / Dynamic leaderboard</div><h2 id="leaderboard-title">Who's winning now?</h2></div><span id="sample-badge" class="badge-sample">— samples</span></div>
+        <div class="section-head"><div><h2 id="leaderboard-title">Who's winning now?</h2></div><span id="sample-badge" class="badge-sample">— samples</span></div>
         <p id="metric-note" class="metric-note">Ranked by MAE. Lower is better</p>
         <div id="rank-list" class="rank-list" aria-live="polite"></div>
         <div id="low-count-alert" class="alert" hidden></div>
       </section>
 
       <section class="panel" aria-labelledby="heatmap-title">
-        <div class="section-head"><div><div class="kicker">03 / Performance by Rings</div><h2 id="heatmap-title">Where does each model win?</h2></div></div>
+        <div class="section-head"><div><h2 id="heatmap-title">Where does each model win?</h2></div></div>
         <div class="table-scroll"><table class="heatmap" aria-label="Model scores by ring-count segment"><thead id="heatmap-head"></thead><tbody id="heatmap-body"></tbody></table></div>
       </section>
 
       <div class="detail-grid">
         <section class="panel" aria-labelledby="duel-title">
-          <div class="kicker">04 / Head-to-head</div><h2 id="duel-title">Who wins more samples?</h2>
+          <h2 id="duel-title">Who wins more samples?</h2>
           <p class="hint">Compare absolute errors on the <em>same</em> observations.</p>
           <div class="duel-controls"><select id="duel-a" class="compact-select" aria-label="First comparison model"></select><span class="versus">VS</span><select id="duel-b" class="compact-select" aria-label="Second comparison model"></select></div>
           <div id="duel-result" class="duel-results">—</div>
@@ -249,7 +244,7 @@
           <div class="duel-key"><span id="duel-a-label">—</span><span id="duel-b-label">—</span></div>
         </section>
         <section class="panel" aria-labelledby="scatter-title">
-          <div class="split-head"><div><div class="kicker">05 / Prediction map</div><h2 id="scatter-title">Actual vs. predicted</h2></div><select id="plot-model" class="compact-select" aria-label="Model for scatter plot"></select></div>
+          <div class="split-head"><div><h2 id="scatter-title">Actual vs. predicted</h2></div><select id="plot-model" class="compact-select" aria-label="Model for scatter plot"></select></div>
           <svg id="scatter-svg" class="scatter" viewBox="0 0 640 310" role="img" aria-label="Scatter plot showing test prediction errors"></svg>
           <div class="plot-legend"><span><i class="legend-dot" style="background:#1c9186"></i> Error ≤ 2 rings</span><span><i class="legend-dot" style="background:#df9960"></i> Error > 2 rings</span></div>
           <p id="plot-inspector" class="inspector-info">Hover over a point to inspect a sample; click it to find it below.</p>
@@ -257,16 +252,15 @@
       </div>
 
       <section class="panel" aria-labelledby="samples-title">
-        <div class="section-head"><div><div class="kicker">06 / Test-set explorer</div><h2 id="samples-title">Inspect individual predictions</h2></div>
+        <div class="section-head"><div><h2 id="samples-title">Inspect individual predictions</h2></div>
           <div class="sample-controls"><input type="search" id="row-search" class="sample-input" placeholder="Original row ID" aria-label="Search original row ID"><select id="sort-samples" class="compact-select" aria-label="Sort sample predictions"><option value="worst">Largest errors first</option><option value="best">Smallest errors first</option><option value="disagree">Most model disagreement</option><option value="index">Original row order</option></select></div>
         </div>
         <div class="table-scroll"><table class="samples"><thead><tr><th>Original row</th><th>Sex</th><th>Actual</th><th>Predicted</th><th>Abs. error</th><th>Row winner</th></tr></thead><tbody id="sample-body"></tbody></table></div>
-        <p class="hint" id="sample-status">Showing selected test samples.</p>
       </section>
     </div>
   </div>
   <section class="panel confidence-panel" id="confidence" aria-labelledby="confidence-title">
-    <div class="section-head"><div><div class="kicker">07 / Statistical uncertainty</div><h2 id="confidence-title">95% Confidence Interval</h2></div></div>
+    <div class="section-head"><div><h2 id="confidence-title">95% Confidence Interval</h2></div></div>
     <div class="uncertainty-grid">
       <div class="ci-panel">
         <div class="compact-heading"><strong>95% MAE intervals</strong><span id="ci-setting-caption">PCA ON</span></div>
