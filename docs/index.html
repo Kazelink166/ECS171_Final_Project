@@ -6,7 +6,7 @@
   <meta name="description" content="Explore PCA versus nine original encoded features, model rankings, subgroup errors, paired bootstrap intervals, and four regression models on Abalone.">
   <title>Abalone / PCA Experiment Lab — ECS 171</title>
   <style>
-    :root {--ink:#102d36;--muted:#657781;--line:#dce6e8;--paper:#fff;--canvas:#f5f7f6;--teal:#147b75;--dark:#102a32;--cream:#e8f5f1;--warning:#9e5a20;--shadow:0 15px 45px rgba(24,57,62,.045)}
+    :root {--ink:#102d36;--muted:#657781;--line:#dce6e8;--paper:#fff;--canvas:#fff;--teal:#147b75;--dark:#102a32;--cream:#e8f5f1;--warning:#9e5a20;--shadow:0 15px 45px rgba(24,57,62,.045)}
     *{box-sizing:border-box}
     body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
     button,select,input{font:inherit}
@@ -66,9 +66,7 @@
     .rank-index{font-size:.77rem;color:#698188;font-weight:800}
     .rank-name{font-size:.93rem;font-weight:770;display:flex;align-items:center;gap:8px;line-height:1.2}
     .model-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
-    .rank-extra{font-size:.75rem;color:var(--muted);margin:5px 0 0 17px}
     .rank-value{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;letter-spacing:-.02em;font-size:1.09rem}
-    .rank-value small{font-size:.69rem;color:var(--muted);display:block;font-weight:550;letter-spacing:0}
     .insight{display:flex;align-items:flex-start;gap:10px;background:#f2f7f6;border-radius:10px;padding:13px 14px;margin-top:14px;font-size:.82rem;color:#425f65;line-height:1.55}
     .insight-mark{background:#d6eee6;color:#127369;width:22px;height:22px;display:grid;place-items:center;border-radius:7px;flex-shrink:0;font-weight:900}
     .alert{margin-top:11px;color:#875326;background:#fff6e9;padding:11px 13px;border-radius:9px;font-size:.8rem}
@@ -172,7 +170,6 @@
     <div class="hero-copy">
       <div class="eyebrow">Abalone regression / scenario explorer</div>
       <h1>Regression vs. Tree-based Models</h1>
-      <p>Switch between PCA and the original encoded features. Explore how four models trade places across test subsets, then inspect uncertainty with paired bootstrap intervals.</p>
       <div class="hero-tags"><span class="hero-tag">4 models · 2 feature settings</span><span class="hero-tag">Same 805 held-out rows</span><span class="hero-tag">5-fold CV</span><span class="hero-tag">3,000 paired bootstrap resamples</span></div>
     </div>
   </section>
@@ -181,7 +178,7 @@
 
   <section class="panel feature-lab" aria-labelledby="feature-lab-title">
     <div class="lab-heading">
-      <div><div class="kicker">Experiment 01 / Feature representation</div><h2 id="feature-lab-title">Does PCA help?</h2><p class="hint">Both settings use the same cleaned data, split, four algorithms, and held-out observations. Change the setting to update every interactive chart below.</p></div>
+      <div><div class="kicker">Experiment 01 / Feature representation</div><h2 id="feature-lab-title">Does PCA help?</h2></div>
       <div class="feature-toggle" role="group" aria-label="Select feature representation">
         <button type="button" id="setting-pca" class="feature-choice active" aria-pressed="true"><span>PCA ON</span><small>2 components</small></button>
         <button type="button" id="setting-nopca" class="feature-choice" aria-pressed="false"><span>PCA OFF</span><small>9 encoded features</small></button>
@@ -203,7 +200,7 @@
 
   <div class="workspace">
     <aside class="panel control-panel" aria-label="Filters">
-      <div class="kicker">Control room</div><h2>Build your own test</h2><div class="filter-setting">Feature space: <strong id="filter-setting-name">PCA ON · 2 PCs</strong></div>
+      <div class="kicker">Control room</div><div class="filter-setting">Feature space: <strong id="filter-setting-name">PCA ON · 2 PCs</strong></div>
       <div class="field"><label class="field-title" for="metric-select">Ranking metric</label>
         <select id="metric-select" class="input-shell">
           <option value="MAE">MAE · mean absolute error ↓</option>
@@ -226,20 +223,19 @@
         <select id="length-select" class="input-shell"><option value="all">All lengths</option><option value="small">Small · bottom 25%</option><option value="mid">Medium · middle 50%</option><option value="large">Large · top 25%</option></select>
         <p class="field-sub" id="length-caption" style="margin:7px 0 0">Based on cleaned-dataset length quartiles.</p>
       </div>
-      <div class="buttons"><button type="button" id="reset-button" class="btn">Reset filters</button><button type="button" id="export-button" class="btn primary">↓ Export subset</button></div>
+      <div class="buttons"><button type="button" id="reset-button" class="btn">Reset filters</button></div>
     </aside>
 
     <div class="main-column">
       <section class="panel" aria-labelledby="leaderboard-title">
         <div class="section-head"><div><div class="kicker">02 / Dynamic leaderboard</div><h2 id="leaderboard-title">Who's winning now?</h2></div><span id="sample-badge" class="badge-sample">— samples</span></div>
-        <p id="metric-note" class="metric-note">Ranked by lowest mean absolute error on the filtered test set.</p>
+        <p id="metric-note" class="metric-note">Ranked by MAE. Lower is better</p>
         <div id="rank-list" class="rank-list" aria-live="polite"></div>
         <div id="low-count-alert" class="alert" hidden></div>
       </section>
 
       <section class="panel" aria-labelledby="heatmap-title">
         <div class="section-head"><div><div class="kicker">03 / Performance by Rings</div><h2 id="heatmap-title">Where does each model win?</h2></div></div>
-        <p class="metric-note">Each row is a different ring-count segment. Scores use the selected metric, while Sex and Length filters remain active. Click a row to explore that group.</p>
         <div class="table-scroll"><table class="heatmap" aria-label="Model scores by ring-count segment"><thead id="heatmap-head"></thead><tbody id="heatmap-body"></tbody></table></div>
       </section>
 
@@ -251,7 +247,6 @@
           <div id="duel-result" class="duel-results">—</div>
           <div class="duel-track" aria-label="Share of samples won"><div id="duel-a-bar"></div><div id="duel-tie-bar" style="background:#c6d1d4"></div><div id="duel-b-bar"></div></div>
           <div class="duel-key"><span id="duel-a-label">—</span><span id="duel-b-label">—</span></div>
-          <p class="hint" style="margin-top:13px">Per-sample win rate is not the same as the lowest average MAE.</p>
         </section>
         <section class="panel" aria-labelledby="scatter-title">
           <div class="split-head"><div><div class="kicker">05 / Prediction map</div><h2 id="scatter-title">Actual vs. predicted</h2></div><select id="plot-model" class="compact-select" aria-label="Model for scatter plot"></select></div>
@@ -265,14 +260,13 @@
         <div class="section-head"><div><div class="kicker">06 / Test-set explorer</div><h2 id="samples-title">Inspect individual predictions</h2></div>
           <div class="sample-controls"><input type="search" id="row-search" class="sample-input" placeholder="Original row ID" aria-label="Search original row ID"><select id="sort-samples" class="compact-select" aria-label="Sort sample predictions"><option value="worst">Largest errors first</option><option value="best">Smallest errors first</option><option value="disagree">Most model disagreement</option><option value="index">Original row order</option></select></div>
         </div>
-        <p class="metric-note">Shows actual rings, the selected scatter-plot model's prediction, and the best model for each example.</p>
         <div class="table-scroll"><table class="samples"><thead><tr><th>Original row</th><th>Sex</th><th>Actual</th><th>Predicted</th><th>Abs. error</th><th>Row winner</th></tr></thead><tbody id="sample-body"></tbody></table></div>
         <p class="hint" id="sample-status">Showing selected test samples.</p>
       </section>
     </div>
   </div>
   <section class="panel confidence-panel" id="confidence" aria-labelledby="confidence-title">
-    <div class="section-head"><div><div class="kicker">07 / Statistical uncertainty</div><h2 id="confidence-title">How confident is the winner?</h2></div><span class="badge-sample">Full test · MAE only</span></div>
+    <div class="section-head"><div><div class="kicker">07 / Statistical uncertainty</div><h2 id="confidence-title">95% Confidence Interval</h2></div></div>
     <div class="uncertainty-grid">
       <div class="ci-panel">
         <div class="compact-heading"><strong>95% MAE intervals</strong><span id="ci-setting-caption">PCA ON</span></div>
@@ -287,7 +281,7 @@
       </div>
     </div>
     <div class="impact-confidence">
-      <div class="compact-heading"><strong>Does PCA help each model?</strong><span>Paired 95% CI for PCA MAE − No-PCA MAE</span></div>
+      <div class="compact-heading"><strong>Does PCA help each model?</strong></div>
       <div class="table-scroll"><table class="samples" aria-label="Paired bootstrap comparison of PCA versus No PCA"><thead><tr><th>Model</th><th>Δ MAE</th><th>95% interval</th><th>Interpretation</th></tr></thead><tbody id="pca-paired-body"></tbody></table></div>
     </div>
   </section>

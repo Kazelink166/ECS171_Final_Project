@@ -17,7 +17,7 @@
     { id: 'old', title: 'Rings >= 16', min: 16, max: null },
   ];
   const DESC = {
-    MAE: 'Ranked by mean absolute error. Lower is better.',
+    MAE: 'Ranked by MAE. Lower is better',
     RMSE: 'Ranked by root mean squared error, which penalizes large misses. Lower is better.',
     MedAE: 'Ranked by median absolute error. Lower is better.',
     R2: 'Ranked by R-squared relative to the mean of actual rings in this subset. Higher is better.',
@@ -177,11 +177,8 @@
       dot.style.background = row.color;
       name.append(dot, document.createTextNode(row.name));
       middle.append(name);
-      const extra = i === 0 && row.score !== null ? 'Current leader' : 'Inspect predictions';
-      middle.append(make('div', 'rank-extra', extra));
       b.append(middle);
       const score = make('div', 'rank-value', fmt(row.score, 4));
-      score.append(make('small', '', state.metric === 'R2' ? 'higher is better' : 'lower is better'));
       b.append(score);
       b.addEventListener('click', () => {
         state.plot = row.name;
@@ -534,29 +531,6 @@
       renderPlot(subset);
       renderSamples(subset);
     }
-    function exportSubset() {
-      const subset = filterData(state.min, state.max);
-      if (!subset.length) return;
-      const cols = ['original_row_index', 'actual_rings', 'Sex', 'Length', 'Diameter', 'Height', 'Whole weight', 'Shucked weight', 'Viscera weight', 'Shell weight', 'selected_setting'];
-      for (const setting of ['PCA','NoPCA']) for (const name of names) cols.push(modelCol(name, setting), setting + '_' + name + '_absolute_error');
-      cols.push('selected_setting_row_winner');
-      const quote = value => '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
-      const csvRows = [cols.map(quote).join(',')];
-      for (const r of subset) {
-        const out = { ...r, selected_setting: activeSetting, selected_setting_row_winner: rowWinner(r) };
-        for (const setting of ['PCA','NoPCA']) for (const name of names) out[setting + '_' + name + '_absolute_error'] = Math.abs(Number(r[modelCol(name, setting)]) - Number(r.actual_rings));
-        csvRows.push(cols.map(k => quote(out[k])).join(','));
-      }
-      const blob = new Blob([csvRows.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'abalone_' + activeSetting.toLowerCase() + '_filtered_predictions.csv';
-      document.body.append(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 300);
-    }
     const setSetting = setting => { state.setting = setting; activeSetting = setting; render(); };
     $('#setting-pca').addEventListener('click', () => setSetting('PCA'));
     $('#setting-nopca').addEventListener('click', () => setSetting('NoPCA'));
@@ -591,7 +565,6 @@
       $('#sex-select').value = 'all'; $('#length-select').value = 'all'; $('#row-search').value = '';
       render();
     });
-    $('#export-button').addEventListener('click', exportSubset);
     render();
   }
 
